@@ -1,4 +1,4 @@
-PKG=github.com/mailru/easyjson
+PKG=github.com/asyou-me/easyjson
 GOPATH:=$(PWD)/.root:$(GOPATH)
 export GOPATH
 

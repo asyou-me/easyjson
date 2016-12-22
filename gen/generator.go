@@ -13,9 +13,9 @@ import (
 	"unicode"
 )
 
-const pkgWriter = "github.com/mailru/easyjson/jwriter"
-const pkgLexer = "github.com/mailru/easyjson/jlexer"
-const pkgEasyjson = "github.com/mailru/easyjson"
+const pkgWriter = "github.com/asyou-me/easyjson/jwriter"
+const pkgLexer = "github.com/asyou-me/easyjson/jlexer"
+const pkgEasyjson = "github.com/asyou-me/easyjson"
 
 // FieldNamer defines a policy for generating names for struct fields.
 type FieldNamer interface {
@@ -60,7 +60,7 @@ func NewGenerator(filename string) *Generator {
 		imports: map[string]string{
 			pkgWriter:       "jwriter",
 			pkgLexer:        "jlexer",
-			pkgEasyjson:      "easyjson",
+			pkgEasyjson:     "easyjson",
 			"encoding/json": "json",
 		},
 		fieldNamer:    DefaultFieldNamer{},
@@ -297,7 +297,7 @@ func (g *Generator) safeName(t reflect.Type) string {
 //
 // Method is used to track encoder/decoder names for the type.
 func (g *Generator) functionName(prefix string, t reflect.Type) string {
-	prefix = joinFunctionNameParts(true, "easyjson", g.hashString, prefix)
+	//prefix = joinFunctionNameParts(true, "easyjson", g.hashString, prefix)
 	name := joinFunctionNameParts(true, prefix, g.safeName(t))
 
 	// Most of the names will be unique, try a shortcut first.

@@ -1,4 +1,4 @@
-# easyjson [![Build Status](https://travis-ci.org/mailru/easyjson.svg?branch=master)](https://travis-ci.org/mailru/easyjson)
+# easyjson [![Build Status](https://travis-ci.org/asyou-me/easyjson.svg?branch=master)](https://travis-ci.org/asyou-me/easyjson)
 
 easyjson allows to (un-)marshal JSON golang structs without the use of reflection by generating marshaller code.  
 
@@ -6,7 +6,7 @@ One of the aims of the library is to keep generated code simple enough so that i
 
 ## usage
 ```
-go get github.com/mailru/easyjson/...
+go get github.com/asyou-me/easyjson/...
 easyjson -all <file>.go
 ```
 

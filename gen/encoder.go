@@ -7,11 +7,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mailru/easyjson"
+	"github.com/asyou-me/easyjson"
 )
 
 func (g *Generator) getEncoderName(t reflect.Type) string {
-	return g.functionName("encode", t)
+	return t.Name() + "Encoder"
 }
 
 var primitiveEncoders = map[reflect.Kind]string{
@@ -333,14 +333,14 @@ func (g *Generator) genStructMarshaller(t reflect.Type) error {
 	fname := g.getEncoderName(t)
 	typ := g.getType(t)
 
-	if !g.noStdMarshalers {
+	/*if !g.noStdMarshalers {
 		fmt.Fprintln(g.out, "// MarshalJSON supports json.Marshaler interface")
 		fmt.Fprintln(g.out, "func (v "+typ+") MarshalJSON() ([]byte, error) {")
 		fmt.Fprintln(g.out, "  w := jwriter.Writer{}")
 		fmt.Fprintln(g.out, "  "+fname+"(&w, v)")
 		fmt.Fprintln(g.out, "  return w.Buffer.BuildBytes(), w.Error")
 		fmt.Fprintln(g.out, "}")
-	}
+	}*/
 
 	fmt.Fprintln(g.out, "// MarshalEasyJSON supports easyjson.Marshaler interface")
 	fmt.Fprintln(g.out, "func (v "+typ+") MarshalEasyJSON(w *jwriter.Writer) {")

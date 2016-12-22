@@ -7,14 +7,14 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/mailru/easyjson"
+	"github.com/asyou-me/easyjson"
 )
 
 // Target this byte size for initial slice allocation to reduce garbage collection.
 const minSliceBytes = 64
 
 func (g *Generator) getDecoderName(t reflect.Type) string {
-	return g.functionName("decode", t)
+	return t.Name() + "Decoder"
 }
 
 var primitiveDecoders = map[reflect.Kind]string{
@@ -361,14 +361,15 @@ func (g *Generator) genStructDecoder(t reflect.Type) error {
 	fname := g.getDecoderName(t)
 	typ := g.getType(t)
 
-	fmt.Fprintln(g.out, "func "+fname+"(in *jlexer.Lexer, out *"+typ+") {")
+	fmt.Fprintln(g.out, "func "+fname+"(in *jlexer.Lexer, out *"+typ+")(error) {")
+	fmt.Fprintln(g.out, "  out.Fields = make([]string,0,"+fmt.Sprint(t.NumField()-1)+")")
 	fmt.Fprintln(g.out, "  isTopLevel := in.IsStart()")
 	fmt.Fprintln(g.out, "  if in.IsNull() {")
 	fmt.Fprintln(g.out, "    if isTopLevel {")
 	fmt.Fprintln(g.out, "      in.Consumed()")
 	fmt.Fprintln(g.out, "    }")
 	fmt.Fprintln(g.out, "    in.Skip()")
-	fmt.Fprintln(g.out, "    return")
+	fmt.Fprintln(g.out, "    return &easyjson.Error{Type:easyjson.FormatError,Msg:\"请传入正确的 json 格式\"}")
 	fmt.Fprintln(g.out, "  }")
 
 	// Init embedded pointer fields.
@@ -386,6 +387,9 @@ func (g *Generator) genStructDecoder(t reflect.Type) error {
 	}
 
 	for _, f := range fs {
+		if f.Name == "Fields" {
+			continue
+		}
 		g.genRequiredFieldSet(t, f)
 	}
 
@@ -398,15 +402,20 @@ func (g *Generator) genStructDecoder(t reflect.Type) error {
 	fmt.Fprintln(g.out, "       in.WantComma()")
 	fmt.Fprintln(g.out, "       continue")
 	fmt.Fprintln(g.out, "    }")
+	fmt.Fprintln(g.out, "    out.Fields = append(out.Fields,key)")
 
 	fmt.Fprintln(g.out, "    switch key {")
 	for _, f := range fs {
+		if f.Name == "Fields" {
+			continue
+		}
 		if err := g.genStructFieldDecoder(t, f); err != nil {
 			return err
 		}
 	}
 
 	fmt.Fprintln(g.out, "    default:")
+	fmt.Fprintln(g.out, "      out.Fields = out.Fields[:len(out.Fields)-1]")
 	fmt.Fprintln(g.out, "      in.SkipRecursive()")
 	fmt.Fprintln(g.out, "    }")
 	fmt.Fprintln(g.out, "    in.WantComma()")
@@ -417,9 +426,13 @@ func (g *Generator) genStructDecoder(t reflect.Type) error {
 	fmt.Fprintln(g.out, "  }")
 
 	for _, f := range fs {
+		if f.Name == "Fields" {
+			continue
+		}
 		g.genRequiredFieldCheck(t, f)
 	}
 
+	fmt.Fprintln(g.out, "return nil")
 	fmt.Fprintln(g.out, "}")
 
 	return nil
@@ -435,18 +448,18 @@ func (g *Generator) genStructUnmarshaller(t reflect.Type) error {
 	fname := g.getDecoderName(t)
 	typ := g.getType(t)
 
-	if !g.noStdMarshalers {
+	/*if !g.noStdMarshalers {
 		fmt.Fprintln(g.out, "// UnmarshalJSON supports json.Unmarshaler interface")
 		fmt.Fprintln(g.out, "func (v *"+typ+") UnmarshalJSON(data []byte) error {")
 		fmt.Fprintln(g.out, "  r := jlexer.Lexer{Data: data}")
 		fmt.Fprintln(g.out, "  "+fname+"(&r, v)")
 		fmt.Fprintln(g.out, "  return r.Error()")
 		fmt.Fprintln(g.out, "}")
-	}
+	}*/
 
 	fmt.Fprintln(g.out, "// UnmarshalEasyJSON supports easyjson.Unmarshaler interface")
-	fmt.Fprintln(g.out, "func (v *"+typ+") UnmarshalEasyJSON(l *jlexer.Lexer) {")
-	fmt.Fprintln(g.out, "  "+fname+"(l, v)")
+	fmt.Fprintln(g.out, "func (v *"+typ+") UnmarshalEasyJSON(l *jlexer.Lexer) (error) {")
+	fmt.Fprintln(g.out, "  return "+fname+"(l, v)")
 	fmt.Fprintln(g.out, "}")
 
 	return nil
