@@ -78,6 +78,9 @@ func (g *Generator) genTypeDecoderNoCheck(t reflect.Type, out string, tags field
 		return nil
 	} else if dec := primitiveDecoders[t.Kind()]; dec != "" {
 		fmt.Fprintln(g.out, ws+out+" = "+g.getType(t)+"("+dec+")")
+		fmt.Fprintln(g.out, "if !in.Ok() {")
+		fmt.Fprintln(g.out, "	return &easyjson.Error{Type: easyjson.ParamError, Msg: \"字段应为 string\"}")
+		fmt.Fprintln(g.out, "}")
 		return nil
 	}
 

@@ -8,10 +8,10 @@ import (
 )
 
 func TestXXX(t *testing.T) {
-	r := jlexer.Lexer{Data: []byte(`{"X":"cccc"}`)}
+	r := jlexer.Lexer{Data: []byte(`{"X":111}`)}
 	x := &XXX{}
 	err := x.UnmarshalEasyJSON(&r)
-	fmt.Println("c:", x.Fields)
 	fmt.Println("err:", err)
+	fmt.Println("c:", x.Fields)
 	fmt.Println("x:", x)
 }
