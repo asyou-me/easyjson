@@ -15,5 +15,5 @@ type Error struct {
 }
 
 func (e *Error) Error() string {
-	return e.Msg
+	return e.Param + ":" + e.Msg
 }

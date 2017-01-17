@@ -179,7 +179,7 @@ func (g *Generator) Run(out io.Writer) error {
 		g.typesUnseen = g.typesUnseen[:len(g.typesUnseen)-1]
 		g.typesSeen[t] = true
 
-		if err := g.genDecoder(t); err != nil {
+		if err := g.genDecoder(t, ""); err != nil {
 			return err
 		}
 		if err := g.genEncoder(t); err != nil {

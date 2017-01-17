@@ -11,6 +11,9 @@ import (
 )
 
 func (g *Generator) getEncoderName(t reflect.Type) string {
+	if t.Name() == "" {
+		panic("不支持匿名字段")
+	}
 	return t.Name() + "Encoder"
 }
 
@@ -343,8 +346,8 @@ func (g *Generator) genStructMarshaller(t reflect.Type) error {
 	}*/
 
 	fmt.Fprintln(g.out, "// MarshalEasyJSON supports easyjson.Marshaler interface")
-	fmt.Fprintln(g.out, "func (v "+typ+") MarshalEasyJSON(w *jwriter.Writer) {")
-	fmt.Fprintln(g.out, "  "+fname+"(w, v)")
+	fmt.Fprintln(g.out, "func (v *"+typ+") MarshalEasyJSON(w *jwriter.Writer) {")
+	fmt.Fprintln(g.out, "  "+fname+"(w, *v)")
 	fmt.Fprintln(g.out, "}")
 
 	return nil
